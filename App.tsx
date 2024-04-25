@@ -14,8 +14,7 @@ export default function App() {
         style= {{
           borderRadius: 6,
           width: '100%',
-          height: '100%'
-        
+          height: '100%',
         }}
 
         theme={{
@@ -29,11 +28,48 @@ export default function App() {
           setSelected(day.dateString);
           console.log('selected day', day)
         }}
+        markingType={'custom'}
         markedDates={{
           [selected]: {selected: true, disableTouchEvent: true, selectedColor: '#06ca88'},
-          '2024-04-01': {selected: true, marked: true, selectedColor: 'blue'},
-          '2024-04-02': {marked: true},
-          '2024-04-03': {selected: true, marked: true, selectedColor: 'blue'}
+          '2024-04-01': {selected: true, marked: true, customStyles: {
+            container: {
+              borderRadius: 2,
+              borderWidth: 2,
+              borderColor: 'white',
+              backgroundColor: 'transparent',
+              height: '110%',
+              width: '75%',
+            },
+            text: {
+              fontWeight: 'bold',
+            }
+          }},
+          '2024-04-02': {customStyles: {
+            container: {
+              borderRadius: 2,
+              borderWidth: 2,
+              borderColor: 'white',
+              backgroundColor: 'transparent',
+              height: '110%',
+              width: '75%',
+            },
+            text: {
+              fontWeight: 'bold',
+            }
+          }},
+          '2024-04-03': {selected: true, marked: true, customStyles: {
+            container: {
+              borderRadius: 2,
+              borderWidth: 2,
+              borderColor: 'white',
+              backgroundColor: 'transparent',
+              height: '110%',
+              width: '75%',
+            },
+            text: {
+              fontWeight: 'bold',
+            }
+          }},
         }}
       />
     </View>
