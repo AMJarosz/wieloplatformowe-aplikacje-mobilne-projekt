@@ -26,6 +26,11 @@ export default function App() {
   return (
     <View style={styles.calendarWrapper}>
       <Calendar
+
+        enableSwipeMonths={true}
+        hideExtraDays={true}
+        current={currentDate}
+
         style= {{
           borderRadius: 6,
           width: '100%',
@@ -38,8 +43,6 @@ export default function App() {
           monthTextColor: 'white',
           dayTextColor: 'white',
         }}
-
-        current={currentDate}
 
         onDayPress={day => {
           setSelected(day.dateString);
