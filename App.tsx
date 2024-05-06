@@ -39,7 +39,7 @@ export default function App() {
 
         theme={{
           calendarBackground: '#141529',
-          arrowColor: 'yellow',
+          arrowColor: 'white',
           monthTextColor: 'white',
           dayTextColor: 'white',
         }}
