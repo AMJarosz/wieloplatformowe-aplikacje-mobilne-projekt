@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TextInput } from 'react-native';
+import DatePicker from 'react-native-datepicker';
 
 const AddScreen = () => {
   return (
