@@ -1,14 +1,15 @@
 import "@expo/metro-runtime";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Feather } from '@expo/vector-icons';
 
-export default function CalendarScreen({ navigation }) {
+export default function CalendarScreen({ route, navigation }) {
     const dateNow = new Date();
     const currentDate = dateNow.toISOString().split('T')[0];
     const [selected, setSelected] = useState('');
+    const [taskName, setTaskName] = useState('');
 
     const customStyle = {
         container: {
@@ -22,7 +23,17 @@ export default function CalendarScreen({ navigation }) {
         text: {
             fontWeight: 'bold',
         }
-    }
+    };
+
+    useEffect(() => {
+        if (route.params?.taskName) {
+            setTaskName(route.params.taskName);
+        }
+    }, [route.params?.taskName]);
+
+    const deleteTask = () => {
+        setTaskName('');
+    };
 
     return (
         <View style={styles.container}>
@@ -55,11 +66,19 @@ export default function CalendarScreen({ navigation }) {
                     }}
                 />
             </View>
-            <TouchableOpacity //przycisk plusa
+            <TouchableOpacity
                 style={styles.addButton}
-                onPress={() => navigation.navigate('Add')}> 
+                onPress={() => navigation.navigate('Add')}>
                 <Feather name="plus" size={24} color="#fff" />
             </TouchableOpacity>
+            {taskName ? (
+                <View style={styles.taskContainer}>
+                    <Text style={styles.taskText}>Task: {taskName}</Text>
+                    <TouchableOpacity style={styles.deleteButton} onPress={deleteTask}>
+                        <Feather name="trash-2" size={24} color="#fff" />
+                    </TouchableOpacity>
+                </View>
+            ) : null}
             <StatusBar style="auto" />
         </View>
     );
@@ -88,5 +107,27 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
         shadowRadius: 2,
+    },
+    taskContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'absolute',
+        bottom: 100,
+        left: 20,
+        right: 20,
+        backgroundColor: '#141529',
+        padding: 10,
+        borderRadius: 10,
+    },
+    taskText: {
+        color: '#fff',
+        fontSize: 16,
+    },
+    deleteButton: {
+        marginLeft: 10,
+        backgroundColor: '#ff6347',
+        borderRadius: 5,
+        padding: 5,
     },
 });
