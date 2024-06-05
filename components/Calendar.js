@@ -26,10 +26,15 @@ export default function CalendarScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    if (route.params?.taskName) {
-      setTasks(prevTasks => [...prevTasks, route.params.taskName]);
+    if (route.params?.taskName && route.params?.date && route.params?.hour) {
+      const newTask = {
+        name: route.params.taskName,
+        date: route.params.date,
+        hour: route.params.hour,
+      };
+      setTasks(prevTasks => [...prevTasks, newTask]);
     }
-  }, [route.params?.taskName]);
+  }, [route.params]);
 
   const deleteTask = (index) => {
     setTasks(prevTasks => prevTasks.filter((task, i) => i !== index));
@@ -75,7 +80,7 @@ export default function CalendarScreen({ route, navigation }) {
         <View style={styles.tasksContainer}>
           {tasks.map((task, index) => (
             <View key={index} style={styles.taskContainer}>
-              <Text style={styles.taskText}>Task: {task}</Text>
+              <Text style={styles.taskText}>{`${task.name} - ${task.date} at ${task.hour}`}</Text>
               <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(index)}>
                 <Feather name="trash-2" size={24} color="#fff" />
               </TouchableOpacity>
