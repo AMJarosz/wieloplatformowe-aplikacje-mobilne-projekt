@@ -1,4 +1,3 @@
-import "@expo/metro-runtime";
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
@@ -32,12 +31,13 @@ export default function CalendarScreen({ route, navigation }) {
         name: route.params.taskName,
         date: route.params.date,
         hour: route.params.hour,
+        done: false,
       };
       setTasks(prevTasks => [...prevTasks, newTask]);
     } else if (route.params?.editedTask) {
       const { id, name, date, hour } = route.params.editedTask;
       setTasks(prevTasks =>
-        prevTasks.map(task => (task.id === id ? { id, name, date, hour } : task))
+        prevTasks.map(task => (task.id === id ? { ...task, name, date, hour } : task))
       );
     }
   }, [route.params]);
@@ -48,6 +48,37 @@ export default function CalendarScreen({ route, navigation }) {
 
   const editTask = (task) => {
     navigation.navigate('Add', { task });
+  };
+
+  const toggleDone = (id) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === id ? { ...task, done: !task.done } : task
+      )
+    );
+  };
+
+  const getMarkedDates = () => {
+    let markedDates = {};
+    tasks.forEach(task => {
+      const date = task.date;
+      if (task.done) {
+        if (!markedDates[date]) {
+          markedDates[date] = {};
+        }
+        markedDates[date][task.id] = {
+          customStyles: {
+            container: {
+              backgroundColor: '#06ca88',
+            },
+            text: {
+              color: 'white',
+            },
+          },
+        };
+      }
+    });
+    return markedDates;
   };
 
   const filteredTasks = tasks.filter(task => task.date === selected);
@@ -75,12 +106,7 @@ export default function CalendarScreen({ route, navigation }) {
             console.log('selected day', day.dateString);
           }}
           markingType={'custom'}
-          markedDates={{
-            [selected]: { selected: true, disableTouchEvent: true, selectedColor: '#06ca88' },
-            '2024-04-01': { selected: true, marked: true, customStyles: customStyle },
-            '2024-04-02': { customStyles: customStyle },
-            '2024-04-03': { selected: true, marked: true, customStyles: customStyle },
-          }}
+          markedDates={getMarkedDates()}
         />
       </View>
       <TouchableOpacity
@@ -92,15 +118,24 @@ export default function CalendarScreen({ route, navigation }) {
         <View style={styles.tasksContainer}>
           <Text style={styles.headerText}>Tasks for {selected}</Text>
           {filteredTasks.map(task => (
-            <View key={task.id} style={styles.taskContainer}>
-              <Text style={styles.taskText}>{`${task.name} - ${task.date} at ${task.hour}`}</Text>
+            <TouchableOpacity
+              key={task.id}
+              style={[
+                styles.taskContainer,
+                { backgroundColor: task.done ? '#06ca88' : '#141529' }
+              ]}
+              onPress={() => toggleDone(task.id)}
+            >
+              <Text style={[styles.taskText, { color: task.done ? '#141529' : '#fff' }]}>
+                {`${task.name} - ${task.date} at ${task.hour}`}
+              </Text>
               <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
                 <Feather name="edit" size={24} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
                 <Feather name="trash-2" size={24} color="#fff" />
               </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       )}
@@ -147,6 +182,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
+    padding: 10,
+    borderRadius: 10,
   },
   headerText: {
     color: '#fff',
@@ -155,7 +192,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   taskText: {
-    color: '#fff',
     fontSize: 16,
   },
   editButton: {
