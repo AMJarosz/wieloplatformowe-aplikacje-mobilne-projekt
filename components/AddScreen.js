@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
+import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const AddScreen = ({ route, navigation }) => {
@@ -10,10 +10,19 @@ const AddScreen = ({ route, navigation }) => {
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
 
   useEffect(() => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    setDate(route.params?.selectedDate || currentDate);
-    console.log('Current or selected date:', route.params?.selectedDate || currentDate);
-  }, [route.params?.selectedDate]);
+    if (route.params?.task) {
+      // Editing an existing task
+      const { name, date, hour } = route.params.task;
+      setTaskName(name);
+      setDate(date);
+      setHour(hour);
+    } else {
+      // Adding a new task
+      const currentDate = new Date().toISOString().split('T')[0];
+      setDate(route.params?.selectedDate || currentDate);
+      console.log('Current or selected date:', route.params?.selectedDate || currentDate);
+    }
+  }, [route.params]);
 
   const handleConfirmDate = (date) => {
     setDate(date.toISOString().split('T')[0]);
@@ -41,32 +50,42 @@ const AddScreen = ({ route, navigation }) => {
     setTimePickerVisibility(false);
   };
 
-  const handleSave = () => {
-    if (date && hour && taskName) {
-      navigation.navigate('Calendar', { taskName, date, hour });
+  const saveTask = () => {
+    if (route.params?.task) {
+      // If editing existing task
+      const editedTask = {
+        ...route.params.task,
+        name: taskName,
+        date,
+        hour,
+      };
+      navigation.navigate('Calendar', { editedTask });
     } else {
-      alert('Please fill all the fields');
+      // If adding new task
+      navigation.navigate('Calendar', { taskName, date, hour });
     }
   };
 
   return (
     <View style={styles.background}>
       <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder="Date"
-          placeholderTextColor="#ccc"
-          value={date}
-          onFocus={showDatePicker}
-          onChangeText={setDate} // Allow editing date manually
+        <TouchableOpacity style={styles.dateInput} onPress={showDatePicker}>
+          <Text style={styles.inputText}>{date}</Text>
+        </TouchableOpacity>
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleConfirmDate}
+          onCancel={hideDatePicker}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Hour"
-          placeholderTextColor="#ccc"
-          value={hour}
-          onFocus={showTimePicker}
-          onChangeText={setHour} // Allow editing hour manually
+        <TouchableOpacity style={styles.timeInput} onPress={showTimePicker}>
+          <Text style={styles.inputText}>{hour}</Text>
+        </TouchableOpacity>
+        <DateTimePickerModal
+          isVisible={isTimePickerVisible}
+          mode="time"
+          onConfirm={handleConfirmTime}
+          onCancel={hideTimePicker}
         />
         <TextInput
           style={styles.input}
@@ -77,19 +96,7 @@ const AddScreen = ({ route, navigation }) => {
         />
         <Button
           title="Save"
-          onPress={handleSave}
-        />
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="date"
-          onConfirm={handleConfirmDate}
-          onCancel={hideDatePicker}
-        />
-        <DateTimePickerModal
-          isVisible={isTimePickerVisible}
-          mode="time"
-          onConfirm={handleConfirmTime}
-          onCancel={hideTimePicker}
+          onPress={saveTask}
         />
       </View>
     </View>
@@ -111,6 +118,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 30,
     padding: 20,
+  },
+  dateInput: {
+    width: '100%',
+    height: 40,
+    backgroundColor: '#302f4b',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timeInput: {
+    width: '100%',
+    height: 40,
+    backgroundColor: '#302f4b',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputText: {
+    color: '#fff',
+    fontSize: 16,
   },
   input: {
     width: '100%',

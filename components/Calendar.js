@@ -28,16 +28,26 @@ export default function CalendarScreen({ route, navigation }) {
   useEffect(() => {
     if (route.params?.taskName && route.params?.date && route.params?.hour) {
       const newTask = {
+        id: Math.random().toString(36).substring(7),
         name: route.params.taskName,
         date: route.params.date,
         hour: route.params.hour,
       };
       setTasks(prevTasks => [...prevTasks, newTask]);
+    } else if (route.params?.editedTask) {
+      const { id, name, date, hour } = route.params.editedTask;
+      setTasks(prevTasks =>
+        prevTasks.map(task => (task.id === id ? { id, name, date, hour } : task))
+      );
     }
   }, [route.params]);
 
-  const deleteTask = (index) => {
-    setTasks(prevTasks => prevTasks.filter((task, i) => i !== index));
+  const deleteTask = (id) => {
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+  };
+
+  const editTask = (task) => {
+    navigation.navigate('Add', { task });
   };
 
   const filteredTasks = tasks.filter(task => task.date === selected);
@@ -81,10 +91,13 @@ export default function CalendarScreen({ route, navigation }) {
       {filteredTasks.length > 0 && (
         <View style={styles.tasksContainer}>
           <Text style={styles.headerText}>Tasks for {selected}</Text>
-          {filteredTasks.map((task, index) => (
-            <View key={index} style={styles.taskContainer}>
+          {filteredTasks.map(task => (
+            <View key={task.id} style={styles.taskContainer}>
               <Text style={styles.taskText}>{`${task.name} - ${task.date} at ${task.hour}`}</Text>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(index)}>
+              <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
+                <Feather name="edit" size={24} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
                 <Feather name="trash-2" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
@@ -144,6 +157,11 @@ const styles = StyleSheet.create({
   taskText: {
     color: '#fff',
     fontSize: 16,
+  },
+  editButton: {
+    backgroundColor: '#3CB371',
+    borderRadius: 5,
+    padding: 5,
   },
   deleteButton: {
     marginLeft: 10,
