@@ -40,6 +40,8 @@ export default function CalendarScreen({ route, navigation }) {
     setTasks(prevTasks => prevTasks.filter((task, i) => i !== index));
   };
 
+  const filteredTasks = tasks.filter(task => task.date === selected);
+
   return (
     <View style={styles.container}>
       <View style={styles.calendarWrapper}>
@@ -76,9 +78,10 @@ export default function CalendarScreen({ route, navigation }) {
         onPress={() => navigation.navigate('Add', { selectedDate: selected })}>
         <Feather name="plus" size={24} color="#fff" />
       </TouchableOpacity>
-      {tasks.length > 0 && (
+      {filteredTasks.length > 0 && (
         <View style={styles.tasksContainer}>
-          {tasks.map((task, index) => (
+          <Text style={styles.headerText}>Tasks for {selected}</Text>
+          {filteredTasks.map((task, index) => (
             <View key={index} style={styles.taskContainer}>
               <Text style={styles.taskText}>{`${task.name} - ${task.date} at ${task.hour}`}</Text>
               <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(index)}>
@@ -130,6 +133,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   taskText: {
