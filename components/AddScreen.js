@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-const AddScreen = ({ navigation }) => {
+const AddScreen = ({ route, navigation }) => {
   const [taskName, setTaskName] = useState('');
   const [date, setDate] = useState('');
   const [hour, setHour] = useState('');
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
+
+  useEffect(() => {
+    const currentDate = new Date().toISOString().split('T')[0];
+    setDate(route.params?.selectedDate || currentDate);
+    console.log('Current or selected date:', route.params?.selectedDate || currentDate);
+  }, [route.params?.selectedDate]);
 
   const handleConfirmDate = (date) => {
     setDate(date.toISOString().split('T')[0]);
@@ -52,6 +58,7 @@ const AddScreen = ({ navigation }) => {
           placeholderTextColor="#ccc"
           value={date}
           onFocus={showDatePicker}
+          onChangeText={setDate} // Allow editing date manually
         />
         <TextInput
           style={styles.input}
@@ -59,6 +66,7 @@ const AddScreen = ({ navigation }) => {
           placeholderTextColor="#ccc"
           value={hour}
           onFocus={showTimePicker}
+          onChangeText={setHour} // Allow editing hour manually
         />
         <TextInput
           style={styles.input}

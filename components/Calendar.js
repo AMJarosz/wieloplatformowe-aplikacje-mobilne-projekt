@@ -8,7 +8,7 @@ import { Feather } from '@expo/vector-icons';
 export default function CalendarScreen({ route, navigation }) {
   const dateNow = new Date();
   const currentDate = dateNow.toISOString().split('T')[0];
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState(currentDate);
   const [tasks, setTasks] = useState([]);
 
   const customStyle = {
@@ -60,7 +60,7 @@ export default function CalendarScreen({ route, navigation }) {
           }}
           onDayPress={day => {
             setSelected(day.dateString);
-            console.log('selected day', day);
+            console.log('selected day', day.dateString);
           }}
           markingType={'custom'}
           markedDates={{
@@ -73,7 +73,7 @@ export default function CalendarScreen({ route, navigation }) {
       </View>
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('Add')}>
+        onPress={() => navigation.navigate('Add', { selectedDate: selected })}>
         <Feather name="plus" size={24} color="#fff" />
       </TouchableOpacity>
       {tasks.length > 0 && (
