@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const AddScreen = ({ route, navigation }) => {
@@ -66,6 +66,10 @@ const AddScreen = ({ route, navigation }) => {
     }
   };
 
+  const goBack = () => {
+    navigation.navigate('Calendar');
+  };
+
   return (
     <View style={styles.background}>
       <View style={styles.container}>
@@ -94,10 +98,14 @@ const AddScreen = ({ route, navigation }) => {
           value={taskName}
           onChangeText={setTaskName}
         />
-        <Button
-          title="Save"
-          onPress={saveTask}
-        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.button, styles.backButton]} onPress={goBack}>
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={saveTask}>
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -151,6 +159,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     color: '#fff',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: '#00FA9A',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+  },
+  backButton: {
+    backgroundColor: '#ff6347', // Red color for the back button
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
