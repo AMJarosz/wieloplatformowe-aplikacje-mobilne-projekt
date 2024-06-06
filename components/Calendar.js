@@ -27,6 +27,28 @@ export default function CalendarScreen({ route, navigation }) {
     }
   };
 
+  const loadTasks = async () => {
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      console.log('File URI:', fileUri);  // Log the file URI for debugging
+      if (fileInfo.exists) {
+        const data = await FileSystem.readAsStringAsync(fileUri);
+        console.log('File contents:', data);  // Log the file contents for debugging
+        setTasks(JSON.parse(data));
+      }
+    } catch (error) {
+      console.error('Error loading tasks', error);
+    }
+  };
+
+  const saveTasks = async (newTasks) => {
+    try {
+      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(newTasks));
+    } catch (error) {
+      console.error('Error saving tasks', error);
+    }
+  };
+
   useEffect(() => {
     loadTasks();
   }, []);
@@ -45,34 +67,13 @@ export default function CalendarScreen({ route, navigation }) {
       saveTasks(updatedTasks);
     } else if (route.params?.editedTask) {
       const { id, name, date, hour } = route.params.editedTask;
-      const updatedTasks = tasks.map(task => 
+      const updatedTasks = tasks.map(task =>
         task.id === id ? { ...task, name, date, hour } : task
       );
       setTasks(updatedTasks);
       saveTasks(updatedTasks);
     }
   }, [route.params]);
-
-  const saveTasks = async (tasks) => {
-    try {
-      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(tasks));
-      console.log('Task saved');
-    } catch (error) {
-      console.error('Error saving tasks', error);
-    }
-  };
-
-  const loadTasks = async () => {
-    try {
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      if (fileInfo.exists) {
-        const data = await FileSystem.readAsStringAsync(fileUri);
-        setTasks(JSON.parse(data));
-      }
-    } catch (error) {
-      console.error('Error loading tasks', error);
-    }
-  };
 
   const deleteTask = (id) => {
     const updatedTasks = tasks.filter(task => task.id !== id);
@@ -96,11 +97,10 @@ export default function CalendarScreen({ route, navigation }) {
     let markedDates = {};
     tasks.forEach(task => {
       const date = task.date;
-      if (task.done) {
-        if (!markedDates[date]) {
-          markedDates[date] = {};
-        }
-        markedDates[date][task.id] = {
+      if (!markedDates[date]) {
+        markedDates[date] = {
+          marked: true,
+          dotColor: '#06ca88',
           customStyles: {
             container: {
               backgroundColor: '#06ca88',
