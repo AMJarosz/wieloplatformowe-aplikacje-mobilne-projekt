@@ -154,33 +154,37 @@ export default function CalendarScreen({ route, navigation }) {
         onPress={() => navigation.navigate('Add', { selectedDate: selectedDate })}>
         <Feather name="plus" size={24} color="#fff" />
       </TouchableOpacity>
-      {filteredTasks.length > 0 && (
-        <View style={styles.tasksContainer}>
-          <Text style={styles.headerText}>Tasks for {selectedDate}</Text>
-          {filteredTasks.map(task => (
-            <TouchableOpacity
-              key={task.id}
-              style={[
-                styles.taskContainer,
-                { backgroundColor: task.done ? '#06ca88' : '#141529' }
-              ]}
-              onPress={() => toggleDone(task.id)}
-            >
-              <Text style={[styles.taskText, { color: task.done ? '#141529' : '#fff' }]}>
-                {`${task.hour}    ${task.name}`}
-              </Text>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
-                  <Feather name="edit" size={24} color="#fff" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
-                  <Feather name="trash-2" size={24} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
+      {filteredTasks.length > 0 ? (
+  <View style={styles.tasksContainer}>
+    <Text style={styles.headerText}>Tasks for {selectedDate}</Text>
+    {filteredTasks.map(task => (
+      <TouchableOpacity
+        key={task.id}
+        style={[
+          styles.taskContainer,
+          { backgroundColor: task.done ? '#06ca88' : '#141529' }
+        ]}
+        onPress={() => toggleDone(task.id)}
+      >
+        <Text style={[styles.taskText, { color: task.done ? '#141529' : '#fff' }]}>
+          {`${task.hour}    ${task.name}`}
+        </Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
+            <Feather name="edit" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
+            <Feather name="trash-2" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
-      )}
+      </TouchableOpacity>
+    ))}
+  </View>
+) : (
+  <View style={styles.tasksContainer}>
+    <Text style={styles.headerText}>No tasks for today</Text>
+  </View>
+)}
       <StatusBar style="auto" />
     </View>
   );
