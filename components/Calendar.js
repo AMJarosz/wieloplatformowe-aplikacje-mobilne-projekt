@@ -156,7 +156,7 @@ export default function CalendarScreen({ route, navigation }) {
       </TouchableOpacity>
       {filteredTasks.length > 0 ? (
   <View style={styles.tasksContainer}>
-    <Text style={styles.headerText}>Tasks for {selectedDate}</Text>
+    <Text style={styles.headerText}>Tasks for today</Text>
     {filteredTasks.map(task => (
       <TouchableOpacity
         key={task.id}

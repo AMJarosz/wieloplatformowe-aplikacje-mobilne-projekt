@@ -88,6 +88,7 @@ const AddScreen = ({ route, navigation }) => {
           mode="date"
           onConfirm={handleConfirmDate}
           onCancel={hideDatePicker}
+          is24Hour={true}
         />
         <TouchableOpacity style={styles.timeInput} onPress={showTimePicker}>
           <Text style={styles.inputText}>{hour}</Text>
@@ -97,6 +98,7 @@ const AddScreen = ({ route, navigation }) => {
           mode="time"
           onConfirm={handleConfirmTime}
           onCancel={hideTimePicker}
+          is24Hour={true}
         />
         <TextInput
           style={styles.input}
