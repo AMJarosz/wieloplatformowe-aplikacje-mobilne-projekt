@@ -3,6 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Feather } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system';
+
+const fileUri = `${FileSystem.documentDirectory}tasks.json`;
 
 export default function CalendarScreen({ route, navigation }) {
   const dateNow = new Date();
@@ -25,6 +28,10 @@ export default function CalendarScreen({ route, navigation }) {
   };
 
   useEffect(() => {
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
     if (route.params?.taskName && route.params?.date && route.params?.hour) {
       const newTask = {
         id: Math.random().toString(36).substring(7),
@@ -33,17 +40,44 @@ export default function CalendarScreen({ route, navigation }) {
         hour: route.params.hour,
         done: false,
       };
-      setTasks(prevTasks => [...prevTasks, newTask]);
+      const updatedTasks = [...tasks, newTask];
+      setTasks(updatedTasks);
+      saveTasks(updatedTasks);
     } else if (route.params?.editedTask) {
       const { id, name, date, hour } = route.params.editedTask;
-      setTasks(prevTasks =>
-        prevTasks.map(task => (task.id === id ? { ...task, name, date, hour } : task))
+      const updatedTasks = tasks.map(task => 
+        task.id === id ? { ...task, name, date, hour } : task
       );
+      setTasks(updatedTasks);
+      saveTasks(updatedTasks);
     }
   }, [route.params]);
 
+  const saveTasks = async (tasks) => {
+    try {
+      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(tasks));
+      console.log('Task saved');
+    } catch (error) {
+      console.error('Error saving tasks', error);
+    }
+  };
+
+  const loadTasks = async () => {
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      if (fileInfo.exists) {
+        const data = await FileSystem.readAsStringAsync(fileUri);
+        setTasks(JSON.parse(data));
+      }
+    } catch (error) {
+      console.error('Error loading tasks', error);
+    }
+  };
+
   const deleteTask = (id) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    setTasks(updatedTasks);
+    saveTasks(updatedTasks);
   };
 
   const editTask = (task) => {
@@ -51,11 +85,11 @@ export default function CalendarScreen({ route, navigation }) {
   };
 
   const toggleDone = (id) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === id ? { ...task, done: !task.done } : task
-      )
+    const updatedTasks = tasks.map(task =>
+      task.id === id ? { ...task, done: !task.done } : task
     );
+    setTasks(updatedTasks);
+    saveTasks(updatedTasks);
   };
 
   const getMarkedDates = () => {
