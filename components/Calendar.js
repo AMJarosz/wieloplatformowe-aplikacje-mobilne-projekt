@@ -169,12 +169,14 @@ export default function CalendarScreen({ route, navigation }) {
               <Text style={[styles.taskText, { color: task.done ? '#141529' : '#fff' }]}>
                 {`${task.hour}    ${task.name}`}
               </Text>
-              <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
-                <Feather name="edit" size={24} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
-                <Feather name="trash-2" size={24} color="#fff" />
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
+                  <Feather name="edit" size={24} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
+                  <Feather name="trash-2" size={24} color="#fff" />
+                </TouchableOpacity>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -234,15 +236,24 @@ const styles = StyleSheet.create({
   taskText: {
     fontSize: 16,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },  
   editButton: {
-    backgroundColor: '#3CB371',
+    backgroundColor: '#00BFFF', // Blue color
     borderRadius: 5,
     padding: 5,
-  },
+    borderWidth: 2,
+    borderColor: '#141529'
+  },  
   deleteButton: {
     marginLeft: 10,
     backgroundColor: '#ff6347',
     borderRadius: 5,
     padding: 5,
+    borderWidth: 2,
+    borderColor: '#141529'
   },
 });
