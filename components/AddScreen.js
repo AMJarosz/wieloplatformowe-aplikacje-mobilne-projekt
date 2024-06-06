@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Feather } from '@expo/vector-icons';
 
 const AddScreen = ({ route, navigation }) => {
   const [taskName, setTaskName] = useState('');
@@ -51,6 +52,12 @@ const AddScreen = ({ route, navigation }) => {
   };
 
   const saveTask = () => {
+    if (!taskName || !date || !hour) {
+      // Alert the user if any input is empty
+      Alert.alert('Incomplete Task', 'Please fill in all fields to save the task.');
+      return;
+    }
+
     if (route.params?.task) {
       // If editing existing task
       const editedTask = {
@@ -66,13 +73,12 @@ const AddScreen = ({ route, navigation }) => {
     }
   };
 
-  const goBack = () => {
-    navigation.navigate('Calendar');
-  };
-
   return (
     <View style={styles.background}>
       <View style={styles.container}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Feather name="chevron-left" size={24} color="#fff" />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.dateInput} onPress={showDatePicker}>
           <Text style={styles.inputText}>{date}</Text>
         </TouchableOpacity>
@@ -98,10 +104,7 @@ const AddScreen = ({ route, navigation }) => {
           value={taskName}
           onChangeText={setTaskName}
         />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.backButton]} onPress={goBack}>
-            <Text style={styles.buttonText}>Back</Text>
-          </TouchableOpacity>
+        <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.button} onPress={saveTask}>
             <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
@@ -126,6 +129,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 30,
     padding: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 1,
   },
   dateInput: {
     width: '100%',
@@ -160,22 +169,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#fff',
   },
-  buttonContainer: {
+  buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    justifyContent: 'center',
   },
   button: {
-    flex: 1,
-    marginHorizontal: 5,
     backgroundColor: '#00FA9A',
     borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingVertical: 10,
-  },
-  backButton: {
-    backgroundColor: '#ff6347', // Red color for the back button
+    paddingHorizontal: 20,
+    marginHorizontal: 5,
   },
   buttonText: {
     color: '#fff',
