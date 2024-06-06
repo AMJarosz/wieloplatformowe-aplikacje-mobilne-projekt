@@ -10,7 +10,7 @@ const fileUri = `${FileSystem.documentDirectory}tasks.json`;
 export default function CalendarScreen({ route, navigation }) {
   const dateNow = new Date();
   const currentDate = dateNow.toISOString().split('T')[0];
-  const [selected, setSelected] = useState(currentDate);
+  const [selectedDate, setSelected] = useState(currentDate);
   const [tasks, setTasks] = useState([]);
 
   const customStyle = {
@@ -115,7 +115,13 @@ export default function CalendarScreen({ route, navigation }) {
     return markedDates;
   };
 
-  const filteredTasks = tasks.filter(task => task.date === selected);
+  const filteredTasks = tasks
+  .filter(task => task.date === selectedDate)
+  .sort((a, b) => {
+    const timeA = parseInt(a.hour.replace(':', ''));
+    const timeB = parseInt(b.hour.replace(':', ''));
+    return timeA - timeB;
+  });
 
   return (
     <View style={styles.container}>
@@ -145,12 +151,12 @@ export default function CalendarScreen({ route, navigation }) {
       </View>
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('Add', { selectedDate: selected })}>
+        onPress={() => navigation.navigate('Add', { selectedDate: selectedDate })}>
         <Feather name="plus" size={24} color="#fff" />
       </TouchableOpacity>
       {filteredTasks.length > 0 && (
         <View style={styles.tasksContainer}>
-          <Text style={styles.headerText}>Tasks for {selected}</Text>
+          <Text style={styles.headerText}>Tasks for {selectedDate}</Text>
           {filteredTasks.map(task => (
             <TouchableOpacity
               key={task.id}
@@ -161,7 +167,7 @@ export default function CalendarScreen({ route, navigation }) {
               onPress={() => toggleDone(task.id)}
             >
               <Text style={[styles.taskText, { color: task.done ? '#141529' : '#fff' }]}>
-                {`${task.name} - ${task.date} at ${task.hour}`}
+                {`${task.hour}    ${task.name}`}
               </Text>
               <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
                 <Feather name="edit" size={24} color="#fff" />
