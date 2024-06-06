@@ -73,12 +73,13 @@ const AddScreen = ({ route, navigation }) => {
     }
   };
 
+  const goBack = () => {
+    navigation.navigate('Calendar');
+  };
+
   return (
     <View style={styles.background}>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Feather name="chevron-left" size={24} color="#fff" />
-        </TouchableOpacity>
         <TouchableOpacity style={styles.dateInput} onPress={showDatePicker}>
           <Text style={styles.inputText}>{date}</Text>
         </TouchableOpacity>
@@ -104,7 +105,10 @@ const AddScreen = ({ route, navigation }) => {
           value={taskName}
           onChangeText={setTaskName}
         />
-        <View style={styles.buttonsContainer}>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.button, styles.backButton]} onPress={goBack}>
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={saveTask}>
             <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
@@ -130,12 +134,12 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 20,
   },
-  backButton: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    zIndex: 1,
-  },
+  // backButton: {
+  //   position: 'absolute',
+  //   top: 10,
+  //   left: 10,
+  //   zIndex: 1,
+  // },
   dateInput: {
     width: '100%',
     height: 40,
@@ -169,16 +173,34 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#fff',
   },
-  buttonsContainer: {
+  // buttonsContainer: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'center',
+  // },
+  // button: {
+  //   backgroundColor: '#00FA9A',
+  //   borderRadius: 10,
+  //   paddingVertical: 10,
+  //   paddingHorizontal: 20,
+  //   marginHorizontal: 5,
+  // },
+
+  buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   button: {
+    flex: 1,
+    marginHorizontal: 5,
     backgroundColor: '#00FA9A',
     borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginHorizontal: 5,
+  },
+  backButton: {
+    backgroundColor: '#ff6347', // Red color for the back button
   },
   buttonText: {
     color: '#fff',
