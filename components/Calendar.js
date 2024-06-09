@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, ScrollView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Feather } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
@@ -13,27 +13,11 @@ export default function CalendarScreen({ route, navigation }) {
   const [selectedDate, setSelected] = useState(currentDate);
   const [tasks, setTasks] = useState([]);
 
-  const customStyle = {
-    container: {
-      borderRadius: 2,
-      borderWidth: 2,
-      borderColor: 'white',
-      backgroundColor: 'transparent',
-      height: '110%',
-      width: '75%',
-    },
-    text: {
-      fontWeight: 'bold',
-    }
-  };
-
   const loadTasks = async () => {
     try {
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      console.log('File URI:', fileUri);  // Log the file URI for debugging
       if (fileInfo.exists) {
         const data = await FileSystem.readAsStringAsync(fileUri);
-        console.log('File contents:', data);  // Log the file contents for debugging
         setTasks(JSON.parse(data));
       }
     } catch (error) {
@@ -115,13 +99,33 @@ export default function CalendarScreen({ route, navigation }) {
     return markedDates;
   };
 
+  const groupTasksByDay = (tasks) => {
+    const groupedTasks = {};
+    tasks.forEach(task => {
+      const dayName = new Date(task.date).toLocaleDateString('en-US', { weekday: 'long' });
+      if (!groupedTasks[dayName]) {
+        groupedTasks[dayName] = [];
+      }
+      groupedTasks[dayName].push(task);
+    });
+    return groupedTasks;
+  };
+
   const filteredTasks = tasks
-  .filter(task => task.date === selectedDate)
-  .sort((a, b) => {
-    const timeA = parseInt(a.hour.replace(':', ''));
-    const timeB = parseInt(b.hour.replace(':', ''));
-    return timeA - timeB;
-  });
+    .filter(task => {
+      const taskDate = new Date(task.date);
+      const selected = new Date(selectedDate);
+      const endDate = new Date(selected);
+      endDate.setDate(selected.getDate() + 7);
+      return taskDate >= selected && taskDate <= endDate;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(`${a.date}T${a.hour}`);
+      const dateB = new Date(`${b.date}T${b.hour}`);
+      return dateA - dateB;
+    });
+
+  const groupedTasks = groupTasksByDay(filteredTasks);
 
   return (
     <View style={styles.container}>
@@ -143,48 +147,51 @@ export default function CalendarScreen({ route, navigation }) {
           }}
           onDayPress={day => {
             setSelected(day.dateString);
-            console.log('selected day', day.dateString);
           }}
           markingType={'custom'}
           markedDates={getMarkedDates()}
         />
       </View>
+      <ScrollView style={styles.tasksContainer} contentContainerStyle={styles.tasksContentContainer}>
+        {Object.keys(groupedTasks).length > 0 ? (
+          Object.keys(groupedTasks).map(dayName => (
+            <View key={dayName} style={styles.dayContainer}>
+              <Text style={styles.dayHeaderText}>{dayName}</Text>
+              {groupedTasks[dayName].slice(0, 5).map(task => (
+                <TouchableOpacity
+                  key={task.id}
+                  style={[
+                    styles.taskContainer,
+                    { backgroundColor: task.done ? '#06ca88' : '#141529' }
+                  ]}
+                  onPress={() => toggleDone(task.id)}
+                >
+                  <Text style={[styles.taskText, { color: task.done ? '#141529' : '#fff' }]}>
+                    {`${task.hour}    ${task.name}`}
+                  </Text>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
+                      <Feather name="edit" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
+                      <Feather name="trash-2" size={24} color="#fff" />
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))
+        ) : (
+          <View style={styles.noTasksContainer}>
+            <Text style={styles.headerText}>No upcoming tasks from {selectedDate}</Text>
+          </View>
+        )}
+      </ScrollView>
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('Add', { selectedDate: selectedDate })}>
         <Feather name="plus" size={24} color="#fff" />
       </TouchableOpacity>
-      {filteredTasks.length > 0 ? (
-  <View style={styles.tasksContainer}>
-    <Text style={styles.headerText}>Tasks for today</Text>
-    {filteredTasks.map(task => (
-      <TouchableOpacity
-        key={task.id}
-        style={[
-          styles.taskContainer,
-          { backgroundColor: task.done ? '#06ca88' : '#141529' }
-        ]}
-        onPress={() => toggleDone(task.id)}
-      >
-        <Text style={[styles.taskText, { color: task.done ? '#141529' : '#fff' }]}>
-          {`${task.hour}    ${task.name}`}
-        </Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.editButton} onPress={() => editTask(task)}>
-            <Feather name="edit" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteButton} onPress={() => deleteTask(task.id)}>
-            <Feather name="trash-2" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    ))}
-  </View>
-) : (
-  <View style={styles.tasksContainer}>
-    <Text style={styles.headerText}>No tasks for today</Text>
-  </View>
-)}
       <StatusBar style="auto" />
     </View>
   );
@@ -193,10 +200,11 @@ export default function CalendarScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#141529',
   },
   calendarWrapper: {
     flex: 1,
-    backgroundColor: '#302f4b',
+    backgroundColor: '#141529',
   },
   addButton: {
     backgroundColor: '#00FA9A',
@@ -215,13 +223,25 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   tasksContainer: {
-    position: 'absolute',
-    bottom: 100,
-    left: 20,
-    right: 20,
+    flex: 1,
+    marginTop: '40%',
+    paddingHorizontal: 20,
+    paddingBottom: 80,
     backgroundColor: '#141529',
-    borderRadius: 10,
-    padding: 10,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  tasksContentContainer: {
+    paddingBottom: 80,
+  },
+  dayContainer: {
+    marginBottom: 20,
+  },
+  dayHeaderText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   taskContainer: {
     flexDirection: 'row',
@@ -231,12 +251,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
-  headerText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
   taskText: {
     fontSize: 16,
   },
@@ -244,20 +258,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-  },  
+  },
   editButton: {
-    backgroundColor: '#00BFFF', // Blue color
+    backgroundColor: '#00BFFF',
     borderRadius: 5,
     padding: 5,
     borderWidth: 2,
-    borderColor: '#141529'
-  },  
+    borderColor: '#141529',
+  },
   deleteButton: {
     marginLeft: 10,
     backgroundColor: '#ff6347',
     borderRadius: 5,
     padding: 5,
     borderWidth: 2,
-    borderColor: '#141529'
+    borderColor: '#141529',
+  },
+  noTasksContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
