@@ -1,21 +1,51 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
 import "@expo/metro-runtime";
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CalendarScreen from './components/Calendar'; 
+import AddScreen from './components/AddScreen';
 
-export default function App() {
+const Stack = createNativeStackNavigator();
+
+export default function App() {  
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Calendar"
+          component={CalendarScreen}
+          options={({ navigation }) => ({ //tutaj można dodać przycisk zmiany trybu, nawigacja przygotowana, wystarczy wymienić screeny
+            ...headerOptions,
+            headerRight: () => (
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate('Add')}>
+                {/* <Text style={{ color: '#fff' }}>Add</Text> */}
+              </TouchableOpacity>
+            ),
+            headerStyle: {
+              backgroundColor: '#302f4b',
+            },
+            headerTintColor: '#fff',
+          })}
+        />
+        <Stack.Screen 
+          name="Add" 
+          component={AddScreen} 
+          options={headerOptions} 
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
+// Ustawienie koloru headera na każdym ekranie
+const headerOptions = {
+  headerStyle: {
+    backgroundColor: '#302f4b',
   },
-});
+  headerTintColor: '#fff',
+};
