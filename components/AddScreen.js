@@ -95,6 +95,7 @@ const AddScreen = ({ route, navigation }) => {
         <DateTimePickerModal
           isVisible={isTimePickerVisible}
           mode="time"
+          placeholder="Hour"
           onConfirm={handleConfirmTime}
           onCancel={hideTimePicker}
           is24Hour={true}

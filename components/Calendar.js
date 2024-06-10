@@ -16,7 +16,7 @@ export default function CalendarScreen({ route, navigation }) {
   const loadTasks = async () => {
     try {
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      if (fileInfo.exists) {
+      if (fileInfo && fileInfo.exists) {
         const data = await FileSystem.readAsStringAsync(fileUri);
         setTasks(JSON.parse(data));
       }
