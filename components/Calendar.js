@@ -131,6 +131,7 @@ export default function CalendarScreen({ route, navigation }) {
     <View style={styles.container}>
       <View style={styles.calendarWrapper}>
         <Calendar
+          testID="calendar"
           enableSwipeMonths={true}
           hideExtraDays={true}
           current={currentDate}
@@ -190,7 +191,7 @@ export default function CalendarScreen({ route, navigation }) {
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('Add', { selectedDate: selectedDate })}>
-        <Feather name="plus" size={24} color="#fff" />
+        <Feather name="plus" size={24} color="#fff"  testID="add-button"/>
       </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
